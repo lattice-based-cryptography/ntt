@@ -36,6 +36,7 @@ pub fn ntt(input: &[u64], root: u64, modulus: u64) -> Vec<u64> {
 pub fn intt(input: &[u64], root: u64, modulus: u64) -> Vec<u64> {
     let n = input.len() as u64;
     let n_inv = mod_exp(n, modulus - 2, modulus); // Modular multiplicative inverse of n
+    println!("n_inv = {}",n_inv);
     let root_inv = mod_exp(root, modulus - 2, modulus);
 
     let mut output = ntt(input, root_inv, modulus);
