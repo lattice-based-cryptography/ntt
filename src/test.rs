@@ -4,9 +4,9 @@ mod tests {
 
     #[test]
     fn test_polymul_ntt() {
-        let p: u64 = 17; // Prime modulus
-        let root: u64 = 3; // Primitive root of unity
-        let n: usize = 8; // Length of the NTT (must be a power of 2)
+        let p: i64 = 17; // Prime modulus
+        let root: i64 = 3; // Primitive root of unity
+        let n: usize = 8;  // Length of the NTT (must be a power of 2)
 
         // Input polynomials (padded to length `n`)
         let mut a = vec![1, 2, 3, 4];
@@ -15,7 +15,7 @@ mod tests {
         b.resize(n, 0);
 
         // Perform the standard polynomial multiplication
-        let c_std = polymul(&a, &b, n as u64, p);
+        let c_std = polymul(&a, &b, n as i64, p);
         
         // Perform the NTT-based polynomial multiplication
         let c_fast = polymul_ntt(&a, &b, n, p, root);
