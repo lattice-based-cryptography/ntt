@@ -2,7 +2,12 @@
 name = "ntt"
 version = "0.1.0"
 edition = "2021"
+description = "A crate for performing Number Theoretic Transform (NTT) based polynomial multiplication."
+license = "MIT"
+license-file = "LICENSE"
+documentation = "https://docs.rs/ntt"
+homepage = "https://github.com/lattice-based-cryptography/ntt"
+repository = "https://github.com/lattice-based-cryptography/ntt"
 
 [dependencies]
 polynomial-ring = "0.5.0"
-
