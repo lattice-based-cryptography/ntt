@@ -1,5 +1,6 @@
 # ntt
 ![CI](https://github.com/jacksonwalters/ntt/actions/workflows/ci.yml/badge.svg)
+![MIT License](https://img.shields.io/badge/License-MIT-brightgreen)
 
 Implementation of the number theoretic transform (NTT) in Rust.
 
