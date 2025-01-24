@@ -1,4 +1,6 @@
-use ntt::{ntt, intt, mod_exp};
+mod test;
+
+use ntt::{ntt, intt, mod_exp, polymul, polymul_ntt};
 
 fn main() {
     let p: u64 = 17; // Prime modulus
@@ -31,6 +33,9 @@ fn main() {
     // Inverse NTT to get the polynomial product
     let c = intt(&c_ntt, omega, n, p);
 
+    let c_std = polymul(&a,&b,n as u64,p);
+    let c_fast = polymul_ntt(&a,&b,n,p,root);
+
     // Output the results
     println!("Polynomial A: {:?}", a);
     println!("Polynomial B: {:?}", b);
@@ -39,5 +44,7 @@ fn main() {
     println!("Recovered A: {:?}", a_ntt_intt);
     println!("Pointwise Product in NTT Domain: {:?}", c_ntt);
     println!("Resultant Polynomial (c): {:?}", c);
+    println!("Standard polynomial mult. result: {:?}", c_std);
+    println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 }
 
