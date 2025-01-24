@@ -1,47 +1,53 @@
-pub fn mod_exp(mut base: u64, mut exp: u64, modulus: u64) -> u64 {
+// Modular arithmetic functions
+fn mod_add(a: u64, b: u64, p: u64) -> u64 {
+    (a + b) % p
+}
+
+fn mod_mul(a: u64, b: u64, p: u64) -> u64 {
+    (a * b) % p
+}
+
+pub fn mod_exp(mut base: u64, mut exp: u64, p: u64) -> u64 {
     let mut result = 1;
-    base %= modulus;
+    base %= p;
     while exp > 0 {
         if exp % 2 == 1 {
-            result = (result * base) % modulus;
+            result = mod_mul(result, base, p);
         }
-        base = (base * base) % modulus;
+        base = mod_mul(base, base, p);
         exp /= 2;
     }
     result
 }
 
-pub fn ntt(input: &[u64], root: u64, modulus: u64) -> Vec<u64> {
-    let n = input.len();
-    let mut output = input.to_vec();
-    let mut step = 1;
-
-    while step < n {
-        let w = mod_exp(root, (modulus - 1) / (2 * step as u64), modulus);
-        for i in (0..n).step_by(2 * step) {
-            let mut w_i = 1;
-            for j in 0..step {
-                let u = output[i + j];
-                let v = (output[i + j + step] * w_i) % modulus;
-                output[i + j] = (u + v) % modulus;
-                output[i + j + step] = (u + modulus - v) % modulus;
-                w_i = (w_i * w) % modulus;
-            }
-        }
-        step *= 2;
-    }
-    output
+fn mod_inv(a: u64, p: u64) -> u64 {
+    mod_exp(a, p - 2, p) // Using Fermat's Little Theorem
 }
 
-pub fn intt(input: &[u64], root: u64, modulus: u64) -> Vec<u64> {
-    let n = input.len() as u64;
-    let n_inv = mod_exp(n, modulus - 2, modulus); // Modular multiplicative inverse of n
-    println!("n_inv = {}",n_inv);
-    let root_inv = mod_exp(root, modulus - 2, modulus);
-
-    let mut output = ntt(input, root_inv, modulus);
-    for x in output.iter_mut() {
-        *x = (*x * n_inv) % modulus;
+// Forward transform using NTT
+pub fn ntt(a: &[u64], omega: u64, n: usize, p: u64) -> Vec<u64> {
+    let mut result = vec![0; n];
+    for k in 0..n {
+        let mut value = 0;
+        for j in 0..n {
+            value = mod_add(value, mod_mul(a[j], mod_exp(omega, (j * k) as u64, p), p), p);
+        }
+        result[k] = value;
     }
-    output
+    result
+}
+
+// Inverse transform using INTT
+pub fn intt(a: &[u64], omega: u64, n: usize, p: u64) -> Vec<u64> {
+    let omega_inv = mod_inv(omega, p);
+    let n_inv = mod_inv(n as u64, p);
+    let mut result = vec![0; n];
+    for k in 0..n {
+        let mut value = 0;
+        for j in 0..n {
+            value = mod_add(value, mod_mul(a[j], mod_exp(omega_inv, (j * k) as u64, p), p), p);
+        }
+        result[k] = mod_mul(value, n_inv, p);
+    }
+    result
 }

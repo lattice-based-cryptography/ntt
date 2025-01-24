@@ -1,9 +1,12 @@
-use ntt::{ntt,intt};
+use ntt::{ntt, intt, mod_exp};
 
 fn main() {
-    let modulus: u64 = 17;
-    let root: u64 = 3; // 
-    let n: usize = 8; // Length of the NTT (power of 2)
+    let p: u64 = 17; // Prime modulus
+    let root: u64 = 3;     // Primitive root of unity for the modulus
+    let n: usize = 8;      // Length of the NTT (must be a power of 2)
+
+    // Compute n-th root of unity: ω = g^((p - 1) / n) % p
+    let omega = mod_exp(root, (p - 1) / n as u64, p);
 
     // Input polynomials (padded to length `n`)
     let mut a = vec![1, 2, 3, 4];
@@ -12,20 +15,21 @@ fn main() {
     b.resize(n, 0);
 
     // Perform the forward NTT
-    let a_ntt = ntt(&a, root, modulus);
-    let b_ntt = ntt(&b, root, modulus);
+    let a_ntt = ntt(&a, omega, n, p);
+    let b_ntt = ntt(&b, omega, n, p);
 
-    let a_ntt_intt = intt(&a_ntt, root, modulus);
+    // Perform the inverse NTT on the transformed A for verification
+    let a_ntt_intt = intt(&a_ntt, omega, n, p);
 
     // Pointwise multiplication in the NTT domain
     let c_ntt: Vec<u64> = a_ntt
         .iter()
         .zip(b_ntt.iter())
-        .map(|(x, y)| (x * y) % modulus)
+        .map(|(x, y)| (x * y) % p)
         .collect();
 
     // Inverse NTT to get the polynomial product
-    let c = intt(&c_ntt, root, modulus);
+    let c = intt(&c_ntt, omega, n, p);
 
     // Output the results
     println!("Polynomial A: {:?}", a);
@@ -36,3 +40,4 @@ fn main() {
     println!("Pointwise Product in NTT Domain: {:?}", c_ntt);
     println!("Resultant Polynomial (c): {:?}", c);
 }
+
