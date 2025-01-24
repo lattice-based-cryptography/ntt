@@ -1,24 +1,22 @@
-name: Basic Tests
+name: basic
+
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Set up Rust
-      uses: actions/setup-rust@v1
-      with:
-        rust-version: stable
-
-    - name: Run tests
-      run: cargo test -- --nocapture
+    - name: build and bun tests for ntt polynomial multiplcation
+      run: |
+        cargo build --verbose
+        cargo test --verbose
