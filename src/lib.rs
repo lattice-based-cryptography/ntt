@@ -24,32 +24,51 @@ fn mod_inv(a: i64, p: i64) -> i64 {
     mod_exp(a, p - 2, p) // Using Fermat's Little Theorem
 }
 
-// Forward transform using NTT
+// Forward transform using NTT, output bit-reversed 
 pub fn ntt(a: &[i64], omega: i64, n: usize, p: i64) -> Vec<i64> {
-    let mut result = vec![0; n];
-    for k in 0..n {
-        let mut value = 0;
-        for j in 0..n {
-            value = mod_add(value, mod_mul(a[j], mod_exp(omega, (j * k) as i64, p), p), p);
-        }
-        result[k] = value;
-    }
-    result
+    let mut result = a.to_vec();
+    let mut step = n/2;
+	while step > 0 {
+		let w_i  = mod_exp(omega, (n/(2*step)).try_into().unwrap(), p);
+		for i in (0..n).step_by(2*step) { 
+			let mut w = 1;
+			for j in 0..step {
+				let u = result[i+j];
+				let v = result[i+j+step];
+				result[i+j] = mod_add(u,v,p);
+				result[i+j+step] = mod_mul(mod_add(u,p-v,p),w,p);
+				w = mod_mul(w,w_i,p);
+			}
+		}
+		step/=2;
+	}
+	result
 }
 
-// Inverse transform using INTT
+// Inverse transform using INTT, input bit-reversed 
 pub fn intt(a: &[i64], omega: i64, n: usize, p: i64) -> Vec<i64> {
     let omega_inv = mod_inv(omega, p);
     let n_inv = mod_inv(n as i64, p);
-    let mut result = vec![0; n];
-    for k in 0..n {
-        let mut value = 0;
-        for j in 0..n {
-            value = mod_add(value, mod_mul(a[j], mod_exp(omega_inv, (j * k) as i64, p), p), p);
-        }
-        result[k] = mod_mul(value, n_inv, p);
-    }
-    result
+    let mut result = a.to_vec();
+    let mut step = 1;
+	while step < n {  
+		let w_i = mod_exp(omega_inv, (n/(2*step)).try_into().unwrap(), p);
+		for i in (0..n).step_by(2*step) { 
+			let mut w = 1;
+			for j in 0..step {
+				let u = result[i+j];
+				let v = mod_mul(result[i+j+step],w,p);
+				result[i+j] = mod_add(u,v,p);
+				result[i+j+step] = mod_add(u,p-v,p);
+				w = mod_mul(w,w_i,p);
+			}
+		}
+		step*=2;
+	}
+	result
+		.iter()
+        .map(|x| mod_mul(*x,n_inv,p))
+        .collect()
 }
 
 // Naive polynomial multiplication
