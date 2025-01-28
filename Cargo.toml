@@ -1,8 +1,8 @@
 [package]
 name = "ntt"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
-description = "A crate for performing Number Theoretic Transform (NTT) based polynomial multiplication."
+description = "Implements the fast NTT (number theoretic transform) for polynomial multiplcation."
 license = "MIT"
 documentation = "https://docs.rs/ntt"
 homepage = "https://github.com/lattice-based-cryptography/ntt"
