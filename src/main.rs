@@ -1,14 +1,12 @@
 mod test;
 
-use ntt::{ntt, intt, mod_exp, polymul, polymul_ntt};
+use ntt::{omega, ntt, intt , polymul, polymul_ntt};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
     let root: i64 = 3; // Primitive root of unity for the modulus
     let n: usize = 8;  // Length of the NTT (must be a power of 2)
-
-    // Compute n-th root of unity: ω = g^((p - 1) / n) % p
-    let omega = mod_exp(root, (p - 1) / n as i64, p);
+    let omega = omega(root, p, n); // n-th root of unity: root^((p - 1) / n) % p
 
     // Input polynomials (padded to length `n`)
     let mut a = vec![1, 2, 3, 4];
@@ -34,7 +32,7 @@ fn main() {
     let c = intt(&c_ntt, omega, n, p);
 
     let c_std = polymul(&a, &b, n as i64, p);
-    let c_fast = polymul_ntt(&a, &b, n, p, root);
+    let c_fast = polymul_ntt(&a, &b, n, p, omega);
 
     // Output the results
     println!("Polynomial A: {:?}", a);

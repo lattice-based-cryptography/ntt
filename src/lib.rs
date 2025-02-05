@@ -24,6 +24,11 @@ fn mod_inv(a: i64, p: i64) -> i64 {
     mod_exp(a, p - 2, p) // Using Fermat's Little Theorem
 }
 
+// Compute n-th root of unity (omega = root^((p - 1) / n) % p)
+pub fn omega(root: i64, p: i64, n: usize) -> i64{
+    mod_exp(root, (p - 1) / n as i64, p)
+}
+
 // Forward transform using NTT, output bit-reversed 
 pub fn ntt(a: &[i64], omega: i64, n: usize, p: i64) -> Vec<i64> {
     let mut result = a.to_vec();
@@ -94,9 +99,7 @@ pub fn polymul(a: &Vec<i64>, b: &Vec<i64>, n: i64, p: i64) -> Vec<i64> {
 ///
 /// # Returns
 /// A vector representing the polynomial product modulo `p`.
-pub fn polymul_ntt(a: &[i64], b: &[i64], n: usize, p: i64, root: i64) -> Vec<i64> {
-    // Compute n-th root of unity (omega = root^((p - 1) / n) % p)
-    let omega = mod_exp(root, (p - 1) / n as i64, p);
+pub fn polymul_ntt(a: &[i64], b: &[i64], n: usize, p: i64, omega: i64) -> Vec<i64> {
 
     // Step 1: Perform the NTT (forward transform) on both polynomials
     let a_ntt = ntt(a, omega, n, p);
