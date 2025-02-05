@@ -1,12 +1,13 @@
 #[cfg(test)]
 mod tests {
-    use ntt::{polymul, polymul_ntt};
+    use ntt::{omega, polymul, polymul_ntt};
 
     #[test]
     fn test_polymul_ntt() {
         let p: i64 = 17; // Prime modulus
         let root: i64 = 3; // Primitive root of unity
         let n: usize = 8;  // Length of the NTT (must be a power of 2)
+        let omega = omega(root, p, n); // n-th root of unity
 
         // Input polynomials (padded to length `n`)
         let mut a = vec![1, 2, 3, 4];
@@ -18,7 +19,7 @@ mod tests {
         let c_std = polymul(&a, &b, n as i64, p);
         
         // Perform the NTT-based polynomial multiplication
-        let c_fast = polymul_ntt(&a, &b, n, p, root);
+        let c_fast = polymul_ntt(&a, &b, n, p, omega);
 
         // Ensure both methods produce the same result
         assert_eq!(c_std, c_fast, "The results of polymul and polymul_ntt do not match");
