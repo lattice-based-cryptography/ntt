@@ -31,9 +31,15 @@ fn mod_inv(a: i64, p: i64) -> i64 {
     }
 }
 
-// Compute n-th root of unity (omega = root^((p - 1) / n) % p)
-pub fn omega(root: i64, p: i64, n: usize) -> i64{
-    mod_exp(root, (p - 1) / n as i64, p)
+// Compute n-th root of unity (omega) for p, depending on whether p is a perfect square
+pub fn omega(root: i64, p: i64, n: usize) -> i64 {
+    // Check if p is a perfect square (p = q^2)
+    let sqrt_p = (p as f64).sqrt() as i64;
+    if sqrt_p * sqrt_p == p { 
+        mod_exp(root, (p - sqrt_p) / n as i64, p)  // order of mult. group is p - sqrt_p
+    } else {
+        mod_exp(root, (p - 1) / n as i64, p)  // order of mult. group is p - 1
+    }
 }
 
 // Forward transform using NTT, output bit-reversed 
