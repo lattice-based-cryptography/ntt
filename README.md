@@ -7,3 +7,5 @@
 Implementation of the number theoretic transform (NTT) in Rust.
 
 This is a discrete Fourier transform over a finite field of prime order p rather than over the complex numbers.
+
+We also allow the case of the ring Z_{p^2}, the integers modulo p^2. In this case the mult. group has order p^2-p.
