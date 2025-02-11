@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn test_polymul_ntt_prime_power_modulus() {
-        let modulus: i64 = (17 as i64).pow(4); // modulus p^k or 2*p^k
+        let modulus: i64 = (17 as i64).pow(4); // modulus p^k
         let root: i64 = 3; // Primitive root of unity
         let n: usize = 8;  // Length of the NTT (must be a power of 2)
         let omega = omega(root, modulus, n); // n-th root of unity
@@ -70,4 +70,5 @@ mod tests {
         // Ensure both methods produce the same result
         assert_eq!(c_std, c_fast, "The results of polymul and polymul_ntt do not match");
     }
+    
 }
