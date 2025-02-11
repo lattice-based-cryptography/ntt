@@ -1,5 +1,14 @@
 use reikna::totient::totient;
 
+fn gcd(mut a: i64, mut b: i64) -> i64 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    a.abs()
+}
+
 // Modular arithmetic functions using i64
 fn mod_add(a: i64, b: i64, p: i64) -> i64 {
     (a + b) % p
@@ -24,6 +33,7 @@ pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
 
 //compute the modular inverse of a modulo p using Fermat's little theorem, p not necessarily prime
 fn mod_inv(a: i64, p: i64) -> i64 {
+    assert!(gcd(a, p) == 1, "{} and {} are not coprime", a, p);
     mod_exp(a, totient(p as u64) as i64 - 1, p) // order of mult. group is Euler's totient function
 }
 
