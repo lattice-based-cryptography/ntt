@@ -56,8 +56,8 @@ mod tests {
         let omega = omega(root, modulus, n); // n-th root of unity
 
         // Input polynomials (padded to length `n`)
-        let mut a = vec![1, 2, 3];
-        let mut b = vec![4, 5, 6];
+        let mut a = vec![1, 2, 3, 4];
+        let mut b = vec![4, 5, 6, 7];
         a.resize(n, 0);
         b.resize(n, 0);
 
