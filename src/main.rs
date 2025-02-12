@@ -1,7 +1,7 @@
 mod test;
 
 use reikna::totient::totient;
-use ntt::{omega, ntt, intt , polymul, polymul_ntt, find_cyclic_subgroup, primitive_root};
+use ntt::{omega, ntt, intt , polymul, polymul_ntt, find_cyclic_subgroup, primitive_root, mod_exp};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
@@ -47,11 +47,13 @@ fn main() {
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
     let modulus = 45; // Example modulus
-    let n = 4;  // Must be a power of 2
+    let n = 2;  // Must be a power of 2
     let (g, g_order) = find_cyclic_subgroup(modulus, n);
+    let omega = mod_exp(g, g_order / n, modulus);
     let root = primitive_root(23, 2);
+    println!("Totient of {}: {}", modulus, totient(modulus as u64));
     println!("Primitive root: {}", root);
     println!("(g, order) = {}, {}", g, g_order);
-    println!("g^g_order: {}", g.pow(g_order as u32) % modulus);
-    println!("Totient of {}: {}", modulus, totient(modulus as u64));
+    println!("omega: {}", omega);
+    println!("omega^n: {}", mod_exp(omega, n, modulus));
 }

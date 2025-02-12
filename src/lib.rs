@@ -181,16 +181,19 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
 
 /// Finds an element in (Z/NZ)* whose order is divisible by `n`.
 pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
+    // Check if n is a power of 2
     if n == 0 || (n & (n - 1)) != 0 {
         panic!("n must be a power of 2");
     }
 
+    // Factorize modulus (assuming a function exists)
     let factors = factorize(modulus);
     let mut generators = Vec::new();
     let mut orders = Vec::new();
 
+    // Loop through factors to find generators and orders
     for (&p, &e) in &factors {
-        let phi = (p - 1) * p.pow(e - 1);
+        let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
         let g = primitive_root(p, e);
         generators.push(g);
         orders.push(phi);
@@ -199,12 +202,17 @@ pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
     let mut chosen_element = 1;
     let mut chosen_order = 1;
 
+    // Loop through generators and orders to find element with required order
     for (&g, &k) in generators.iter().zip(orders.iter()) {
-        let required_order = lcm(k, n); // Ensure the subgroup order is divisible by n
-        let exponent = required_order / gcd(k, required_order); // Pick the exponent carefully
-        chosen_element = (chosen_element * mod_exp(g, exponent, modulus)) % modulus;
-        chosen_order = lcm(chosen_order, required_order);
+        // Calculate required order
+        let required_order = lcm(k, n); // Least common multiple
+        let exponent = required_order / gcd(k, required_order); // Adjust exponent
+        chosen_element = (chosen_element * mod_exp(g, exponent, modulus)) % modulus; // mod_exp computes power mod modulus
+        chosen_order = lcm(chosen_order, k / gcd(k, n)); // Adjust chosen order
     }
+
+    // Assert the order is divisible by n
+    assert_eq!(chosen_order % n, 0);
 
     (chosen_element, chosen_order)
 }
