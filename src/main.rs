@@ -1,12 +1,12 @@
 mod test;
 
 use reikna::totient::totient;
-use ntt::{omega, ntt, intt , polymul, polymul_ntt, cyclic_subgroup_gen, mod_exp, mod_inv};
+use ntt::{ntt, intt , polymul, polymul_ntt, mod_exp, mod_inv};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
     let n: usize = 8;  // Length of the NTT (must be a power of 2)
-    let omega = omega(p, n); // n-th root of unity: root^((p - 1) / n) % p
+    let omega = ntt::omega(p, n); // n-th root of unity: root^((p - 1) / n) % p
 
     // Input polynomials (padded to length `n`)
     let mut a = vec![1, 2, 3, 4];
@@ -47,9 +47,9 @@ fn main() {
 
     let modulus = 51; // Example modulus
     let n = 8;  // Must be a power of 2
-    let omega = cyclic_subgroup_gen(modulus, n);
+    let omega = ntt::omega(modulus, n); // n-th root of unity
     println!("Totient of {}: {}", modulus, totient(modulus as u64));
     println!("omega: {}", omega);
-    println!("omega^n: {}", mod_exp(omega, n, modulus));
+    println!("omega^n: {}", mod_exp(omega, n as i64, modulus));
     println!("n^-1 = {}", mod_inv(n as i64, modulus));
 }
