@@ -47,7 +47,7 @@ fn main() {
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
     let modulus = 45; // Example modulus
-    let n = 2;  // Must be a power of 2
+    let n = 4;  // Must be a power of 2
     let (g, g_order) = find_cyclic_subgroup(modulus, n);
     let omega = mod_exp(g, g_order / n, modulus);
     let root = primitive_root(23, 2);

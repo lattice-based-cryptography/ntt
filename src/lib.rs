@@ -207,7 +207,7 @@ pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
 
             //Lift using CRT
             result_element = crt(result_element, p.pow(e), element_in_factor, modulus/p.pow(e));
-            return (result_element, n)
+            result_order = n
         }
     }
 
@@ -217,25 +217,18 @@ pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
     (result_element, result_order)
 }
 
-fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
-    // Solve x = a1 mod n1 and x = a2 mod n2
-    let n = n1 * n2;
-
-    // Find the modular inverses
-    let (inv1, _) = extended_gcd(n1, n2); // inv1 is the inverse of n2 mod n1
-    let (inv2, _) = extended_gcd(n2, n1); // inv2 is the inverse of n1 mod n2
-
-    // CRT formula: x = (a1 * n2 * inv(n2, n1) + a2 * n1 * inv(n1, n2)) mod n
-    let x = (a1 * n2 * inv1 + a2 * n1 * inv2) % n;
-
-    // Ensure non-negative result
-    if x < 0 {
+fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64{
+    //Solve x = a1 mod n1 and x = a2 mod n2
+    let n = n1*n2;
+    let (inv1, _) = extended_gcd(n1, n2);
+    let (inv2, _) = extended_gcd(n2, n1);
+    let x = (a1*inv2%n*n2%n + a2*inv1%n*n1%n)%n;
+    if x < 0{
         x + n
-    } else {
+    }else{
         x
     }
 }
-
 
 
 
