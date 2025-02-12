@@ -1,7 +1,7 @@
 mod test;
 
 use reikna::totient::totient;
-use ntt::{omega, ntt, intt , polymul, polymul_ntt, find_cyclic_subgroup, primitive_root, mod_exp, crt};
+use ntt::{omega, ntt, intt , polymul, polymul_ntt, find_cyclic_subgroup, mod_exp};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
@@ -48,17 +48,8 @@ fn main() {
 
     let modulus = 45; // Example modulus
     let n = 4;  // Must be a power of 2
-    let (g, g_order) = find_cyclic_subgroup(modulus, n);
-    let omega = mod_exp(g, g_order / n, modulus);
-    let root = primitive_root(23, 2);
+    let omega = find_cyclic_subgroup(modulus, n);
     println!("Totient of {}: {}", modulus, totient(modulus as u64));
-    println!("Primitive root: {}", root);
-    println!("(g, order) = {}, {}", g, g_order);
     println!("omega: {}", omega);
     println!("omega^n: {}", mod_exp(omega, n, modulus));
-
-    let x1 = crt(2, 3, 3, 5);
-    println!("Expected: 8, Computed: {}", x1);
-    let x3 = crt(4, 7, 5, 11);
-    println!("Expected: 60, Computed: {}", x3);
 }

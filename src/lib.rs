@@ -11,11 +11,6 @@ fn gcd(mut a: i64, mut b: i64) -> i64 {
     a.abs()
 }
 
-/// Compute LCM of two numbers.
-fn lcm(a: i64, b: i64) -> i64 {
-    (a * b) / gcd(a, b)
-}
-
 // Modular arithmetic functions using i64
 fn mod_add(a: i64, b: i64, p: i64) -> i64 {
     (a + b) % p
@@ -179,33 +174,18 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
     0 // Should never happen
 }
 
-pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
-    if n == 0 || (n & (n - 1)) != 0 {
-        panic!("n must be a power of 2");
-    }
-
-    let factors = factorize(modulus);
-    let mut result_element = 1; // Initialize to 1 for CRT
-    let mut result_order = 1;
-
+pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> i64 {
+    let factors = factorize(modulus); // factor the modulus
     for (&p, &e) in &factors {
-        let phi = (p - 1) * p.pow(e - 1);
+        let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
         if phi % n == 0 {
-            println!("phi: {}", phi);
-            let g = primitive_root(p, e);
-            let order = phi / n; // Find an element of order n (or a multiple of n)
-            let element_in_factor = mod_exp(g, order, p.pow(e));
-
-            //Lift using CRT
-            result_element = crt(result_element, p.pow(e), element_in_factor, modulus/p.pow(e));
-            result_order = n
+            let g = primitive_root(p, e); // find a primitive root mod p^e
+            let exp = phi / n; // exponent of the primitive root
+            let order_n_elem = mod_exp(g, exp, p.pow(e)); // element of mult. order n mod p^e
+            return crt(1, modulus/p.pow(e), order_n_elem, p.pow(e)); // lift using CRT
         }
     }
-
-    if result_order == 1{
-        panic!("could not find element of order n");
-    }
-    (result_element, result_order)
+    panic!("could not find element of order n");
 }
 
 pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
