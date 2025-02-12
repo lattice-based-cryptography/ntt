@@ -11,6 +11,13 @@ fn gcd(mut a: i64, mut b: i64) -> i64 {
     a.abs()
 }
 
+pub fn is_prime_power(n: i64) -> bool {
+    if n <= 1 {
+        return false; // 1 and numbers <= 1 are not prime powers
+    }
+    factorize(n).len() == 1
+}
+
 // Modular arithmetic functions using i64
 fn mod_add(a: i64, b: i64, p: i64) -> i64 {
     (a + b) % p
@@ -40,10 +47,18 @@ fn mod_inv(a: i64, p: i64) -> i64 {
 }
 
 // Compute n-th root of unity (omega) for p not necessarily prime
-pub fn omega(root: i64, p: i64, n: usize) -> i64 {
-    let grp_size = totient(p as u64) as i64;
-    assert!(grp_size % n as i64 == 0, "{} does not divide {}", n, grp_size);
-    mod_exp(root, grp_size / n as i64, p) // order of mult. group is Euler's totient function
+pub fn omega(modulus: i64, n: usize) -> i64 {
+    let factors = factorize(modulus as i64);
+    if factors.len() == 1 {
+        let (p, e) = factors.into_iter().next().unwrap();
+        let root = primitive_root(p, e); // primitive root mod p
+        let grp_size = totient(modulus as u64) as i64;
+        assert!(grp_size % n as i64 == 0, "{} does not divide {}", n, grp_size);
+        return mod_exp(root, grp_size / n as i64, modulus) // order of mult. group is Euler's totient function
+    }
+    else {
+        return cyclic_subgroup_gen(modulus, n as i64)
+    }
 }
 
 // Forward transform using NTT, output bit-reversed 
@@ -174,7 +189,7 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
     0 // Should never happen
 }
 
-pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> i64 {
+pub fn cyclic_subgroup_gen(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus); // factor the modulus
     for (&p, &e) in &factors {
         let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
