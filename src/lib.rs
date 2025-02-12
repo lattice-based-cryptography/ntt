@@ -11,6 +11,16 @@ fn gcd(mut a: i64, mut b: i64) -> i64 {
     a.abs()
 }
 
+fn extended_gcd(a: i64, b: i64) -> (i64, i64) {
+    if b == 0 {
+        return (1, 0);
+    }
+    let (x1, y1) = extended_gcd(b, a % b);
+    let x = y1;
+    let y = x1 - y1 * (a / b);
+    (x, y)
+}
+
 /// Compute LCM of two numbers.
 fn lcm(a: i64, b: i64) -> i64 {
     (a * b) / gcd(a, b)
@@ -179,41 +189,53 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
     0 // Should never happen
 }
 
-/// Finds an element in (Z/NZ)* whose order is divisible by `n`.
 pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
-    // Check if n is a power of 2
     if n == 0 || (n & (n - 1)) != 0 {
         panic!("n must be a power of 2");
     }
 
-    // Factorize modulus (assuming a function exists)
     let factors = factorize(modulus);
-    let mut generators = Vec::new();
-    let mut orders = Vec::new();
+    let mut result_element = 1; // Initialize to 1 for CRT
+    let mut result_order = 1;
 
-    // Loop through factors to find generators and orders
     for (&p, &e) in &factors {
-        let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
-        let g = primitive_root(p, e);
-        generators.push(g);
-        orders.push(phi);
+        let phi = (p - 1) * p.pow(e - 1);
+        if phi % n == 0 {
+            let g = primitive_root(p, e);
+            let order = phi / n; // Find an element of order n (or a multiple of n)
+            let element_in_factor = mod_exp(g, order, p.pow(e));
+
+            //Lift using CRT
+            result_element = crt(result_element, p.pow(e), element_in_factor, modulus/p.pow(e));
+            return (result_element, n)
+        }
     }
 
-    let mut chosen_element = 1;
-    let mut chosen_order = 1;
-
-    // Loop through generators and orders to find element with required order
-    for (&g, &k) in generators.iter().zip(orders.iter()) {
-        // Calculate required order
-        let required_order = lcm(k, n); // Least common multiple
-        let exponent = required_order / gcd(k, required_order); // Adjust exponent
-        chosen_element = (chosen_element * mod_exp(g, exponent, modulus)) % modulus; // mod_exp computes power mod modulus
-        chosen_order = lcm(chosen_order, k / gcd(k, n)); // Adjust chosen order
+    if result_order == 1{
+        panic!("could not find element of order n");
     }
-
-    // Assert the order is divisible by n
-    assert_eq!(chosen_order % n, 0);
-
-    (chosen_element, chosen_order)
+    (result_element, result_order)
 }
+
+fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
+    // Solve x = a1 mod n1 and x = a2 mod n2
+    let n = n1 * n2;
+
+    // Find the modular inverses
+    let (inv1, _) = extended_gcd(n1, n2); // inv1 is the inverse of n2 mod n1
+    let (inv2, _) = extended_gcd(n2, n1); // inv2 is the inverse of n1 mod n2
+
+    // CRT formula: x = (a1 * n2 * inv(n2, n1) + a2 * n1 * inv(n1, n2)) mod n
+    let x = (a1 * n2 * inv1 + a2 * n1 * inv2) % n;
+
+    // Ensure non-negative result
+    if x < 0 {
+        x + n
+    } else {
+        x
+    }
+}
+
+
+
 
