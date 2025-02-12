@@ -52,7 +52,7 @@ pub fn omega(modulus: i64, n: usize) -> i64 {
         return mod_exp(root, grp_size / n as i64, modulus) // order of mult. group is Euler's totient function
     }
     else {
-        return cyclic_subgroup_gen(modulus, n as i64)
+        return root(modulus, n as i64)
     }
 }
 
@@ -184,7 +184,8 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
     0 // Should never happen
 }
 
-pub fn cyclic_subgroup_gen(modulus: i64, n: i64) -> i64 {
+// Compute the n-th root of unity modulo a composite modulus
+pub fn root(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus); // factor the modulus
     for (&p, &e) in &factors {
         let phi = (p - 1) * p.pow(e - 1); // Euler's totient function

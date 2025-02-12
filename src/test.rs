@@ -73,7 +73,6 @@ mod tests {
         let modulus: i64 = 51; // modulus not of the form p^k
         let n: usize = 8;  // Length of the NTT (must be a power of 2)
         let omega = omega(modulus, n); // n-th root of unity
-        println!("omega^n: {}", mod_exp(omega,n as i64,modulus));
 
         // Input polynomials (padded to length `n`)
         let mut a = vec![1, 2, 3, 4];
