@@ -11,16 +11,6 @@ fn gcd(mut a: i64, mut b: i64) -> i64 {
     a.abs()
 }
 
-fn extended_gcd(a: i64, b: i64) -> (i64, i64) {
-    if b == 0 {
-        return (1, 0);
-    }
-    let (x1, y1) = extended_gcd(b, a % b);
-    let x = y1;
-    let y = x1 - y1 * (a / b);
-    (x, y)
-}
-
 /// Compute LCM of two numbers.
 fn lcm(a: i64, b: i64) -> i64 {
     (a * b) / gcd(a, b)
@@ -201,6 +191,7 @@ pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
     for (&p, &e) in &factors {
         let phi = (p - 1) * p.pow(e - 1);
         if phi % n == 0 {
+            println!("phi: {}", phi);
             let g = primitive_root(p, e);
             let order = phi / n; // Find an element of order n (or a multiple of n)
             let element_in_factor = mod_exp(g, order, p.pow(e));
@@ -217,17 +208,12 @@ pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
     (result_element, result_order)
 }
 
-fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64{
-    //Solve x = a1 mod n1 and x = a2 mod n2
-    let n = n1*n2;
-    let (inv1, _) = extended_gcd(n1, n2);
-    let (inv2, _) = extended_gcd(n2, n1);
-    let x = (a1*inv2%n*n2%n + a2*inv1%n*n1%n)%n;
-    if x < 0{
-        x + n
-    }else{
-        x
-    }
+pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
+    let n = n1 * n2;
+    let m1 = mod_inv(n1, n2); // Inverse of n1 mod n2
+    let m2 = mod_inv(n2, n1); // Inverse of n2 mod n1
+    let x = (a1 * m2 * n2 + a2 * m1 * n1) % n;
+    if x < 0 { x + n } else { x }
 }
 
 
