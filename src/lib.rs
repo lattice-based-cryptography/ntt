@@ -1,4 +1,6 @@
 use reikna::totient::totient;
+use reikna::factor::quick_factorize;
+use std::collections::HashMap;
 
 fn gcd(mut a: i64, mut b: i64) -> i64 {
     while b != 0 {
@@ -7,6 +9,11 @@ fn gcd(mut a: i64, mut b: i64) -> i64 {
         a = temp;
     }
     a.abs()
+}
+
+/// Compute LCM of two numbers.
+fn lcm(a: i64, b: i64) -> i64 {
+    (a * b) / gcd(a, b)
 }
 
 // Modular arithmetic functions using i64
@@ -132,3 +139,73 @@ pub fn polymul_ntt(a: &[i64], b: &[i64], n: usize, p: i64, omega: i64) -> Vec<i6
     
     c
 }
+
+/// Compute the prime factorization of `n` (with multiplicities).
+fn factorize(n: i64) -> HashMap<i64, u32> {
+    let mut factors = HashMap::new();
+    for factor in quick_factorize(n as u64) {
+        *factors.entry(factor as i64).or_insert(0) += 1;
+    }
+    factors
+}
+
+/// Fast computation of a primitive root mod p^e
+pub fn primitive_root(p: i64, e: u32) -> i64 {
+
+    // Find a primitive root mod p
+    let g = find_primitive_root_mod_p(p);
+
+    // Lift it to p^e
+    let mut g_lifted = g;
+    for _ in 1..e {
+        if g_lifted.pow((p - 1) as u32) % p.pow(e) == 1 {
+            g_lifted += p.pow(e - 1);
+        }
+    }
+    g_lifted
+}
+
+/// Finds a primitive root modulo a prime p
+fn find_primitive_root_mod_p(p: i64) -> i64 {
+    let phi = p - 1;
+    let factors = factorize(phi); // Reusing factorize to get both prime factors and multiplicities
+
+    for g in 2..p {
+        // Check if g is a primitive root by checking mod_exp conditions with all prime factors of phi
+        if factors.iter().all(|(&q, _)| mod_exp(g, phi / q, p) != 1) {
+            return g;
+        }
+    }
+    0 // Should never happen
+}
+
+/// Finds an element in (Z/NZ)* whose order is divisible by `n`.
+pub fn find_cyclic_subgroup(modulus: i64, n: i64) -> (i64, i64) {
+    if n == 0 || (n & (n - 1)) != 0 {
+        panic!("n must be a power of 2");
+    }
+
+    let factors = factorize(modulus);
+    let mut generators = Vec::new();
+    let mut orders = Vec::new();
+
+    for (&p, &e) in &factors {
+        let phi = (p - 1) * p.pow(e - 1);
+        let g = primitive_root(p, e);
+        generators.push(g);
+        orders.push(phi);
+    }
+
+    let mut chosen_element = 1;
+    let mut chosen_order = 1;
+
+    for (&g, &k) in generators.iter().zip(orders.iter()) {
+        let required_order = lcm(k, n); // Ensure the subgroup order is divisible by n
+        let exponent = required_order / gcd(k, required_order); // Pick the exponent carefully
+        chosen_element = (chosen_element * mod_exp(g, exponent, modulus)) % modulus;
+        chosen_order = lcm(chosen_order, required_order);
+    }
+
+    (chosen_element, chosen_order)
+}
+
