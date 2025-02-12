@@ -2,22 +2,6 @@ use reikna::totient::totient;
 use reikna::factor::quick_factorize;
 use std::collections::HashMap;
 
-fn gcd(mut a: i64, mut b: i64) -> i64 {
-    while b != 0 {
-        let temp = b;
-        b = a % b;
-        a = temp;
-    }
-    a.abs()
-}
-
-pub fn is_prime_power(n: i64) -> bool {
-    if n <= 1 {
-        return false; // 1 and numbers <= 1 are not prime powers
-    }
-    factorize(n).len() == 1
-}
-
 // Modular arithmetic functions using i64
 fn mod_add(a: i64, b: i64, p: i64) -> i64 {
     (a + b) % p
@@ -40,10 +24,21 @@ pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
     result
 }
 
-//compute the modular inverse of a modulo p using Fermat's little theorem, p not necessarily prime
-fn mod_inv(a: i64, p: i64) -> i64 {
-    assert!(gcd(a, p) == 1, "{} and {} are not coprime", a, p);
-    mod_exp(a, totient(p as u64) as i64 - 1, p) // order of mult. group is Euler's totient function
+fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
+    if b == 0 {
+        (a, 1, 0)  // gcd, x, y
+    } else {
+        let (gcd, x1, y1) = extended_gcd(b, a % b);
+        (gcd, y1, x1 - (a / b) * y1)
+    }
+}
+
+pub fn mod_inv(a: i64, modulus: i64) -> i64 {
+    let (gcd, x, _) = extended_gcd(a, modulus);
+    if gcd != 1 {
+        panic!("{} and {} are not coprime, no inverse exists", a, modulus);
+    }
+    (x % modulus + modulus) % modulus  // Ensure a positive result
 }
 
 // Compute n-th root of unity (omega) for p not necessarily prime
