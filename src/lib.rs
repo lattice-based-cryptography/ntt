@@ -207,29 +207,56 @@ pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
 }
 */
 
-pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
-    let factors = factorize(modulus);
-    let mut remaining_n = n;
-    let mut result = 1;
-    let mut current_modulus = modulus;  // Start with the full modulus
+pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
+    let n = n1 * n2;
+    let m1 = mod_inv(n1, n2); // Inverse of n1 mod n2
+    let m2 = mod_inv(n2, n1); // Inverse of n2 mod n1
+    let x = (a1 * m2 * n2 + a2 * m1 * n1) % n;
+    if x < 0 { x + n } else { x }
+}
 
-    for (&p, &e) in &factors {
-        let phi = (p - 1) * p.pow(e - 1);
-        let d = gcd(remaining_n, phi);  // GCD with the current factor
-        remaining_n /= d;
+pub fn divisors_with_given_lcm(phi: &[i64], n: i64) -> Option<Vec<i64>> {
+    let n_factors = factorize(n);
+    let phi_factors: Vec<HashMap<i64, u32>> = phi.iter().map(|&x| factorize(x)).collect();
+    let num_phi = phi.len();
+    let mut d: Vec<i64> = vec![1; num_phi];
 
-        if d > 1 {
-            let g = primitive_root(p, e);  
-            let exp = phi / d;             
-            let order_d_elem = mod_exp(g, exp, p.pow(e));
-
-            current_modulus /= p.pow(e);  // Remove this factor before CRT
-            result = crt(result, current_modulus, order_d_elem, p.pow(e)); // Combine using CRT
+    for (&prime, &n_power) in n_factors.iter() {
+        let mut found = false;
+        for i in 0..num_phi {
+            if phi_factors[i].contains_key(&prime) && phi_factors[i][&prime] >= n_power {
+                d[i] *= prime.pow(n_power);
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            return None;
         }
     }
 
-    if remaining_n != 1 {
-        panic!("Could not find all factors of n in the group");
+    Some(d)
+}
+
+pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
+    let factors = factorize(modulus);
+    let mut result = 1;
+
+    // Compute the divisors d_i such that lcm(d_i for all i) = n
+    let phi: Vec<i64> = factors.iter().map(|(&p, &e)| (p - 1) * p.pow(e - 1)).collect();
+    let divisors = divisors_with_given_lcm(&phi, n).expect("Could not find divisors with LCM equal to n");
+
+    for (i, (&p, &e)) in factors.iter().enumerate() {
+        let d = divisors[i];  // Use the divisor for the current factor
+        if d > 1 {
+            let g = primitive_root(p, e);  // Find primitive root mod p^e
+            let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
+            let exp = phi / d; // Compute exponent for order d
+            let order_d_elem = mod_exp(g, exp, p.pow(e)); // Element of order d
+
+            // Combine with the running result using CRT
+            result = crt(result, modulus / p.pow(e), order_d_elem, p.pow(e));
+        }
     }
 
     result
@@ -248,14 +275,4 @@ pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {
     }
     true
 }
-
-pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
-    let n = n1 * n2;
-    let m1 = mod_inv(n1, n2); // Inverse of n1 mod n2
-    let m2 = mod_inv(n2, n1); // Inverse of n2 mod n1
-    let x = (a1 * m2 * n2 + a2 * m1 * n1) % n;
-    if x < 0 { x + n } else { x }
-}
-
-
 
