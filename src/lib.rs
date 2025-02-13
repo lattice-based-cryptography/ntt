@@ -234,24 +234,13 @@ pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus);
     let mut result = 1;
 
-    // Compute the divisors d_i such that lcm(d_i for all i) = n
-    let phi: Vec<i64> = factors.iter().map(|(&p, &e)| (p - 1) * p.pow(e - 1)).collect();
-    let divisors = divisors_with_given_lcm(&phi, n).expect("Could not find divisors with LCM equal to n");
-
-    for (i, (&p, &e)) in factors.iter().enumerate() {
-        let d = divisors[i];  // Use the divisor for the current factor
-        if d > 1 {
-            let g = primitive_root(p, e);  // Find primitive root mod p^e
-            let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
-            let exp = phi / d; // Compute exponent for order d
-            let order_d_elem = mod_exp(g, exp, p.pow(e)); // Element of order d
-
-            // Combine with the running result using CRT
-            result = crt(result, modulus / p.pow(e), order_d_elem, p.pow(e));
-        }
-    }
-
-    result
+    for (&p, &e) in factors.iter() {
+		// Find primitive nth root of unity mod p^e
+		let omega = omega(p.pow(e), n.try_into().unwrap());
+		// Combine with the running result using CRT
+        result = crt(result, modulus / p.pow(e), omega, p.pow(e));
+	}
+	result
 }
 
 pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {

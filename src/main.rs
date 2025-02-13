@@ -47,7 +47,7 @@ fn main() {
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
     //test the composite modulus case
-    let modulus = 85; // Example modulus
+    let modulus = 697; // Example modulus
     let n = 8;  // Must be a power of 2
     let omega = ntt::omega(modulus, n); // n-th root of unity
     println!("Totient of {}: {}", modulus, totient(modulus as u64));

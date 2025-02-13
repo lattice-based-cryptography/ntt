@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use ntt::{omega, polymul, polymul_ntt,mod_exp};
+    use ntt::{omega, polymul, polymul_ntt};
 
     #[test]
     fn test_polymul_ntt() {
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_polymul_ntt_non_prime_power_modulus() {
-        let modulus: i64 = 51; // modulus not of the form p^k
+        let modulus: i64 = 697; // modulus not of the form p^k
         let n: usize = 8;  // Length of the NTT (must be a power of 2)
         let omega = omega(modulus, n); // n-th root of unity
 
