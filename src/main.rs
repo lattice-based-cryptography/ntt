@@ -47,7 +47,7 @@ fn main() {
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
     //test the composite modulus case
-    let modulus = 51; // Example modulus
+    let modulus = 85; // Example modulus
     let n = 8;  // Must be a power of 2
     let omega = ntt::omega(modulus, n); // n-th root of unity
     println!("Totient of {}: {}", modulus, totient(modulus as u64));
@@ -78,8 +78,8 @@ fn main() {
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
     //check that we can take a list of numbers and compute divisors such that their lcm = a number
-    let n = 12;
-    let phis = vec![4, 6, 6]; // Example phi values
+    let n = 8;
+    let phis = vec![8, 2]; // Example phi values
     let divisors = divisors_with_given_lcm(&phis, n);
     println!("{:?}", divisors); // Output a set of divisors whose LCM is n
 

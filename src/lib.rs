@@ -24,14 +24,6 @@ pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
     result
 }
 
-fn gcd(a: i64, b: i64) -> i64 {
-    if b == 0 {
-        a.abs()
-    } else {
-        gcd(b, a % b)
-    }
-}
-
 fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         (a, 1, 0)  // gcd, x, y
