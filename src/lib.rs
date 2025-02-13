@@ -24,6 +24,14 @@ pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
     result
 }
 
+fn gcd(a: i64, b: i64) -> i64 {
+    if b == 0 {
+        a.abs()
+    } else {
+        gcd(b, a % b)
+    }
+}
+
 fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         (a, 1, 0)  // gcd, x, y
@@ -183,6 +191,7 @@ fn primitive_root_mod_p(p: i64) -> i64 {
 }
 
 // Compute the n-th root of unity modulo a composite modulus
+/*
 pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus); // factor the modulus
     for (&p, &e) in &factors {
@@ -195,6 +204,35 @@ pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
         }
     }
     panic!("could not find element of order n");
+}
+*/
+
+pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
+    let factors = factorize(modulus);
+    let mut remaining_n = n;
+    let mut result = 1;
+    let mut current_modulus = modulus;  // Start with the full modulus
+
+    for (&p, &e) in &factors {
+        let phi = (p - 1) * p.pow(e - 1);
+        let d = gcd(remaining_n, phi);  // GCD with the current factor
+        remaining_n /= d;
+
+        if d > 1 {
+            let g = primitive_root(p, e);  
+            let exp = phi / d;             
+            let order_d_elem = mod_exp(g, exp, p.pow(e));
+
+            current_modulus /= p.pow(e);  // Remove this factor before CRT
+            result = crt(result, current_modulus, order_d_elem, p.pow(e)); // Combine using CRT
+        }
+    }
+
+    if remaining_n != 1 {
+        panic!("Could not find all factors of n in the group");
+    }
+
+    result
 }
 
 pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {

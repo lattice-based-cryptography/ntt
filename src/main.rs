@@ -35,6 +35,7 @@ fn main() {
     let c_fast = polymul_ntt(&a, &b, n, p, omega);
 
     // Output the results
+    println!("verify omega = {}", verify_root_of_unity(omega, n as i64, p));
     println!("Polynomial A: {:?}", a);
     println!("Polynomial B: {:?}", b);
     println!("Transformed A: {:?}", a_ntt);
