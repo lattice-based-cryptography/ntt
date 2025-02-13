@@ -52,7 +52,7 @@ pub fn omega(modulus: i64, n: usize) -> i64 {
         return mod_exp(root, grp_size / n as i64, modulus) // order of mult. group is Euler's totient function
     }
     else {
-        return root(modulus, n as i64)
+        return root_of_unity(modulus, n as i64)
     }
 }
 
@@ -156,9 +156,8 @@ fn factorize(n: i64) -> HashMap<i64, u32> {
 
 /// Fast computation of a primitive root mod p^e
 pub fn primitive_root(p: i64, e: u32) -> i64 {
-
-    // Find a primitive root mod p
-    let g = find_primitive_root_mod_p(p);
+    
+    let g = primitive_root_mod_p(p);
 
     // Lift it to p^e
     let mut g_lifted = g;
@@ -171,10 +170,9 @@ pub fn primitive_root(p: i64, e: u32) -> i64 {
 }
 
 /// Finds a primitive root modulo a prime p
-fn find_primitive_root_mod_p(p: i64) -> i64 {
+fn primitive_root_mod_p(p: i64) -> i64 {
     let phi = p - 1;
     let factors = factorize(phi); // Reusing factorize to get both prime factors and multiplicities
-
     for g in 2..p {
         // Check if g is a primitive root by checking mod_exp conditions with all prime factors of phi
         if factors.iter().all(|(&q, _)| mod_exp(g, phi / q, p) != 1) {
@@ -185,7 +183,7 @@ fn find_primitive_root_mod_p(p: i64) -> i64 {
 }
 
 // Compute the n-th root of unity modulo a composite modulus
-pub fn root(modulus: i64, n: i64) -> i64 {
+pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus); // factor the modulus
     for (&p, &e) in &factors {
         let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
@@ -197,6 +195,20 @@ pub fn root(modulus: i64, n: i64) -> i64 {
         }
     }
     panic!("could not find element of order n");
+}
+
+pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {
+    assert!(mod_exp(omega, n, modulus as i64) == 1, "omega is not an n-th root of unity");
+    for k in 1..n {
+        let mut sum = 0i64;
+        for j in 0..n {
+            sum = (sum + mod_exp(omega, j * k, modulus)) % modulus;
+        }
+        if sum != 0 {
+            return false;
+        }
+    }
+    true
 }
 
 pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {

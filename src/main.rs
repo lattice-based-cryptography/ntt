@@ -1,7 +1,7 @@
 mod test;
 
 use reikna::totient::totient;
-use ntt::{ntt, intt , polymul, polymul_ntt, mod_exp, mod_inv};
+use ntt::{ntt, intt , polymul, polymul_ntt, mod_exp, mod_inv, verify_root_of_unity};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
@@ -51,6 +51,7 @@ fn main() {
     let omega = ntt::omega(modulus, n); // n-th root of unity
     println!("Totient of {}: {}", modulus, totient(modulus as u64));
     println!("omega: {}", omega);
+    println!("verify omega = {}", verify_root_of_unity(omega, n as i64, modulus));
     (0..=n).for_each(|i| println!("omega^{}: {}", i, mod_exp(omega, i as i64, modulus)));
     println!("n^-1 = {}", mod_inv(n as i64, modulus));
     let a_ntt = ntt(&a, omega, n, modulus);
