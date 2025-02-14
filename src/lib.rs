@@ -48,7 +48,7 @@ pub fn omega(modulus: i64, n: usize) -> i64 {
         let (p, e) = factors.into_iter().next().unwrap();
         let root = primitive_root(p, e); // primitive root mod p
         let grp_size = totient(modulus as u64) as i64;
-        assert!(grp_size % 2*n as i64 == 0, "{} does not divide {}", 2*n, grp_size);
+        assert!(grp_size % n as i64 == 0, "{} does not divide {}", n, grp_size);
         return mod_exp(root, grp_size / n as i64, modulus) // order of mult. group is Euler's totient function
     }
     else {
@@ -198,13 +198,10 @@ pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
 pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus);
     let mut result = 1;
-    let mut omega_is_square = false;
     for (&p, &e) in factors.iter() {
 		let omega = omega(p.pow(e), n.try_into().unwrap()); // Find primitive nth root of unity mod p^e
         result = crt(result, modulus / p.pow(e), omega, p.pow(e)); // Combine with the running result using CRT
-        omega_is_square = omega_is_square || totient(p.pow(e) as u64) % (2*n as u64) == 0;
 	}
-    assert!(omega_is_square, "no 2n-th root of unity exists modulo {}", modulus);
 	result
 }
 
