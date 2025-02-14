@@ -13,3 +13,5 @@ We allow the case of the ring Z/NZ where $N = p^k$. In this case the multiplicat
 The array size is `n` and must be a power of two for the divide-and-conquer algorithm to work, and `n` must also divide $\phi(p^k)$ to have an `n`th root of unity `omega`. This is equivalent to $n|p-1$ for $p > 2$.
 
 Note if $N=2p^k$, the multiplicative group is still cyclic and $\phi(2p^k) = p^k(p-1)$, but $gcd(n,N)=2$, so `n` is not invertible modulo $N$. 
+
+We extend to the case of non prime power moduli by computing n^th roots mod p^k for each prime factor p of N and pulling them back along the CRT isomorphism.
