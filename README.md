@@ -6,6 +6,6 @@
 
 Implementation of the number theoretic transform (NTT) in Rust.
 
-The array size `n` must be a power of two. 
+The NTT is a DFT over Z/pZ. We use a fast divide-and conquer algorithm. The array size `n` must be a power of two. 
 
 We allow composite moduli `modulus` for prime powers `p^k` or moduli such that `n` divides `phi(p^e)` for each prime factor p, where `phi` is the Euler totient.
