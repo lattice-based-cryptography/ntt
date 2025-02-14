@@ -1,6 +1,6 @@
 [package]
 name = "ntt"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 description = "Implements the fast NTT (number theoretic transform) for polynomial multiplcation for prime power moduli."
 license = "MIT"
