@@ -208,15 +208,7 @@ pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
 //ensure the root of unity satisfies sum_{j=0}^{n-1} omega^{jk} = 0 for 1 \le k < n
 pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {
     assert!(mod_exp(omega, n, modulus as i64) == 1, "omega is not an n-th root of unity");
-    for k in 1..n {
-        let mut sum = 0i64;
-        for j in 0..n {
-            sum = (sum + mod_exp(omega, j * k, modulus)) % modulus;
-        }
-        if sum != 0 {
-            return false;
-        }
-    }
+    assert!(mod_exp(omega, n/2, modulus as i64) == modulus-1, "omgea^(n/2) != -1 (mod modulus)");
     true
 }
 
