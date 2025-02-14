@@ -1,12 +1,11 @@
 mod test;
 
-use ntt::{omega, ntt, intt , polymul, polymul_ntt};
+use ntt::{ntt, intt , polymul, polymul_ntt, verify_root_of_unity};
 
 fn main() {
-    let p: i64 = 17; // Prime modulus
-    let root: i64 = 3; // Primitive root of unity for the modulus
+    let modulus: i64 = 17; // modulus, n must divide phi(p^k) for each prime factor p
     let n: usize = 8;  // Length of the NTT (must be a power of 2)
-    let omega = omega(root, p, n); // n-th root of unity: root^((p - 1) / n) % p
+    let omega = ntt::omega(modulus, n); // n-th root of unity
 
     // Input polynomials (padded to length `n`)
     let mut a = vec![1, 2, 3, 4];
@@ -15,26 +14,27 @@ fn main() {
     b.resize(n, 0);
 
     // Perform the forward NTT
-    let a_ntt = ntt(&a, omega, n, p);
-    let b_ntt = ntt(&b, omega, n, p);
+    let a_ntt = ntt(&a, omega, n, modulus);
+    let b_ntt = ntt(&b, omega, n, modulus);
 
     // Perform the inverse NTT on the transformed A for verification
-    let a_ntt_intt = intt(&a_ntt, omega, n, p);
+    let a_ntt_intt = intt(&a_ntt, omega, n, modulus);
 
     // Pointwise multiplication in the NTT domain
     let c_ntt: Vec<i64> = a_ntt
         .iter()
         .zip(b_ntt.iter())
-        .map(|(x, y)| (x * y) % p)
+        .map(|(x, y)| (x * y) % modulus)
         .collect();
 
     // Inverse NTT to get the polynomial product
-    let c = intt(&c_ntt, omega, n, p);
+    let c = intt(&c_ntt, omega, n, modulus);
 
-    let c_std = polymul(&a, &b, n as i64, p);
-    let c_fast = polymul_ntt(&a, &b, n, p, omega);
+    let c_std = polymul(&a, &b, n as i64, modulus);
+    let c_fast = polymul_ntt(&a, &b, n, modulus, omega);
 
     // Output the results
+    println!("verify omega = {}", verify_root_of_unity(omega, n as i64, modulus));
     println!("Polynomial A: {:?}", a);
     println!("Polynomial B: {:?}", b);
     println!("Transformed A: {:?}", a_ntt);
@@ -44,4 +44,5 @@ fn main() {
     println!("Resultant Polynomial (c): {:?}", c);
     println!("Standard polynomial mult. result: {:?}", c_std);
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
+
 }
