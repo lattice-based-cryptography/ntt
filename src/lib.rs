@@ -48,7 +48,7 @@ pub fn omega(modulus: i64, n: usize) -> i64 {
         let (p, e) = factors.into_iter().next().unwrap();
         let root = primitive_root(p, e); // primitive root mod p
         let grp_size = totient(modulus as u64) as i64;
-        assert!(grp_size % n as i64 == 0, "{} does not divide {}", n, grp_size);
+        assert!(grp_size % 2*n as i64 == 0, "{} does not divide {}", 2*n, grp_size);
         return mod_exp(root, grp_size / n as i64, modulus) // order of mult. group is Euler's totient function
     }
     else {
@@ -182,23 +182,7 @@ fn primitive_root_mod_p(p: i64) -> i64 {
     0 // Should never happen
 }
 
-// Compute the n-th root of unity modulo a composite modulus
-/*
-pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
-    let factors = factorize(modulus); // factor the modulus
-    for (&p, &e) in &factors {
-        let phi = (p - 1) * p.pow(e - 1); // Euler's totient function
-        if phi % n == 0 {
-            let g = primitive_root(p, e); // find a primitive root mod p^e
-            let exp = phi / n; // exponent of the primitive root
-            let order_n_elem = mod_exp(g, exp, p.pow(e)); // element of mult. order n mod p^e
-            return crt(1, modulus/p.pow(e), order_n_elem, p.pow(e)); // lift using CRT
-        }
-    }
-    panic!("could not find element of order n");
-}
-*/
-
+// the Chinese remainder theorem for two moduli
 pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
     let n = n1 * n2;
     let m1 = mod_inv(n1, n2); // Inverse of n1 mod n2
@@ -207,42 +191,24 @@ pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
     if x < 0 { x + n } else { x }
 }
 
-pub fn divisors_with_given_lcm(phi: &[i64], n: i64) -> Option<Vec<i64>> {
-    let n_factors = factorize(n);
-    let phi_factors: Vec<HashMap<i64, u32>> = phi.iter().map(|&x| factorize(x)).collect();
-    let num_phi = phi.len();
-    let mut d: Vec<i64> = vec![1; num_phi];
-
-    for (&prime, &n_power) in n_factors.iter() {
-        let mut found = false;
-        for i in 0..num_phi {
-            if phi_factors[i].contains_key(&prime) && phi_factors[i][&prime] >= n_power {
-                d[i] *= prime.pow(n_power);
-                found = true;
-                break;
-            }
-        }
-        if !found {
-            return None;
-        }
-    }
-
-    Some(d)
-}
-
+// computes an n^th root of unity modulo a composite modulus
+// note we require that an n^th root of unity exists for each multiplicative group modulo p^e
+// use the CRT isomorphism to pull back each n^th root of unity to the composite modulus
+// for the NTT, we require than a 2n^th root of unity exists
 pub fn root_of_unity(modulus: i64, n: i64) -> i64 {
     let factors = factorize(modulus);
     let mut result = 1;
-
+    let mut omega_is_square = false;
     for (&p, &e) in factors.iter() {
-		// Find primitive nth root of unity mod p^e
-		let omega = omega(p.pow(e), n.try_into().unwrap());
-		// Combine with the running result using CRT
-        result = crt(result, modulus / p.pow(e), omega, p.pow(e));
+		let omega = omega(p.pow(e), n.try_into().unwrap()); // Find primitive nth root of unity mod p^e
+        result = crt(result, modulus / p.pow(e), omega, p.pow(e)); // Combine with the running result using CRT
+        omega_is_square = omega_is_square || totient(p.pow(e) as u64) % (2*n as u64) == 0;
 	}
+    assert!(omega_is_square, "no 2n-th root of unity exists modulo {}", modulus);
 	result
 }
 
+//ensure the root of unity satisfies sum_{j=0}^{n-1} omega^{jk} = 0 for 1 \le k < n
 pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {
     assert!(mod_exp(omega, n, modulus as i64) == 1, "omega is not an n-th root of unity");
     for k in 1..n {

@@ -1,7 +1,7 @@
 mod test;
 
 use reikna::totient::totient;
-use ntt::{ntt, intt , polymul, polymul_ntt, mod_exp, mod_inv, verify_root_of_unity, divisors_with_given_lcm};
+use ntt::{ntt, intt , polymul, polymul_ntt, mod_exp, mod_inv, verify_root_of_unity};
 
 fn main() {
     let p: i64 = 17; // Prime modulus
@@ -76,11 +76,5 @@ fn main() {
     println!("Standard polynomial mult. result: {:?}", c_std);
     println!("Resultant Polynomial (c): {:?}", c);
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
-
-    //check that we can take a list of numbers and compute divisors such that their lcm = a number
-    let n = 8;
-    let phis = vec![8, 2]; // Example phi values
-    let divisors = divisors_with_given_lcm(&phis, n);
-    println!("{:?}", divisors); // Output a set of divisors whose LCM is n
 
 }
