@@ -2,7 +2,7 @@
 name = "ntt"
 version = "0.1.6"
 edition = "2021"
-description = "Implements the fast NTT (number theoretic transform) for polynomial multiplcation for prime power moduli."
+description = "Fast NTT (number theoretic transform) for polynomial multiplcation for primes, prime power, and certain composite moduli."
 license = "MIT"
 documentation = "https://docs.rs/ntt"
 homepage = "https://github.com/lattice-based-cryptography/ntt"
