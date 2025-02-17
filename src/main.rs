@@ -45,8 +45,4 @@ fn main() {
     println!("Standard polynomial mult. result: {:?}", c_std);
     println!("Polynomial multiplication method using NTT: {:?}", c_fast);
 
-    let q = 12289;
-    let n = 512;
-    println!("omega = {}", ntt::omega(q*q, n));
-
 }
