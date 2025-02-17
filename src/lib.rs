@@ -207,6 +207,14 @@ fn factorize(n: i64) -> HashMap<i64, u32> {
 }
 
 /// Fast computation of a primitive root mod p^e
+/// Computes a primitive root mod p and lifts it to p^e by adding successive powers of p
+/// # Arguments
+///
+/// * `p` - Prime modulus.
+/// * `e` - Exponent.
+///
+/// # Returns
+/// A primitive root modulo `p^e`.
 pub fn primitive_root(p: i64, e: u32) -> i64 {
     let g = primitive_root_mod_p(p);
     let mut g_lifted = g; // Lift it to p^e
@@ -257,7 +265,7 @@ pub fn crt(a1: i64, n1: i64, a2: i64, n2: i64) -> i64 {
 
 /// computes an n^th root of unity modulo a composite modulus
 /// note we require that an n^th root of unity exists for each multiplicative group modulo p^e
-/// use the CRT isomorphism to pull back each n^th root of unity to the composite modulus
+/// use the CRT isomorphism to pull back the list of n^th roots of unity to the composite modulus
 /// for the NTT, we require than a 2n^th root of unity exists
 /// # Arguments
 ///
