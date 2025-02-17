@@ -156,11 +156,9 @@ fn factorize(n: i64) -> HashMap<i64, u32> {
 
 /// Fast computation of a primitive root mod p^e
 pub fn primitive_root(p: i64, e: u32) -> i64 {
-    println!("primitive_root called");
     let g = primitive_root_mod_p(p);
     let mut g_lifted = g; // Lift it to p^e
     for _ in 1..e {
-        println!("g_lifted: {}", g_lifted);
         if mod_exp(g_lifted, p-1, p.pow(e)) == 1 {
             g_lifted += p.pow(e - 1);
         }

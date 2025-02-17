@@ -26,19 +26,24 @@ mod tests {
 
     #[test]
     fn test_polymul_ntt_square_modulus() {
-        let moduli = [17*17, 12289*12289]; // Different moduli to test
-        let n: usize = 8;  // Length of the NTT (must be a power of 2)
-
-        for &modulus in &moduli {
-            let omega = omega(modulus, n); // n-th root of unity
-            let mut a = vec![1, 2, 3, 4];
-            let mut b = vec![5, 6, 7, 8];
-            a.resize(n, 0);
-            b.resize(n, 0);
-            let c_std = polymul(&a, &b, n as i64, modulus);
-            let c_fast = polymul_ntt(&a, &b, n, modulus, omega);
-            assert_eq!(c_std, c_fast, "The results of polymul and polymul_ntt do not match");
+        let cases = [
+            (17*17, 4),        // small square modulus
+            (12289*12289, 512) // large square modulus
+        ];
+        
+        for &(modulus, n) in &cases {
+            let omega = omega(modulus, 2*n); // n-th root of unity
+            let mut a: Vec<i64> = (0..n).map(|x| x as i64).collect();
+            let mut b: Vec<i64> = (0..n).map(|x| x as i64).collect();
+            a.resize(2*n, 0);
+            b.resize(2*n, 0);
+        
+            let c_std = polymul(&a, &b, 2*n as i64, modulus);
+            let c_fast = polymul_ntt(&a, &b, 2*n, modulus, omega);
+        
+            assert_eq!(c_std, c_fast, "The results of polymul and polymul_ntt do not match for modulus {} and n {}", modulus, n);
         }
+
     }
 
     #[test]
