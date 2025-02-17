@@ -21,7 +21,7 @@ fn mod_mul(a: i64, b: i64, p: i64) -> i64 {
 ///
 /// # Returns
 /// The result of the exponentiation modulo `p`.
-pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
+fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
     let mut result = 1;
     base %= p;
     while exp > 0 {
@@ -72,15 +72,16 @@ fn mod_inv(a: i64, modulus: i64) -> i64 {
 /// # Examples
 ///
 /// ```
-/// // For modulus = 17^2 = 289 and n = 8, we compute an 8th root of unity.
+/// // For modulus = 17^2 = 289, we compute and verify an 8th root of unity.
 /// let modulus = 17 * 17;
 /// let n = 8;
-///
-/// // Compute the omega for the given modulus and order.
 /// let omega = ntt::omega(modulus, n);
-///
-/// // Verify that omega^n is congruent to 1 modulo modulus.
-/// assert_eq!(ntt::mod_exp(omega, n as i64, modulus), 1);
+/// assert!(ntt::verify_root_of_unity(omega,n.try_into().unwrap(),modulus));
+/// 
+/// // For modulus = 17*41*73, we compute and verify an 8th root of unity.
+/// let modulus = 17*41*73;
+/// let omega = ntt::omega(modulus, n);
+/// assert!(ntt::verify_root_of_unity(omega,n.try_into().unwrap(),modulus));
 /// ```
 pub fn omega(modulus: i64, n: usize) -> i64 {
     let factors = factorize(modulus as i64);
