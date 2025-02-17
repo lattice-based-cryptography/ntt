@@ -35,6 +35,13 @@ fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
 }
 
 /// Extended Euclidean algorithm
+/// # Arguments
+///
+/// * `a` - First number.
+/// * `b` - Second number.
+///
+/// # Returns
+/// A tuple with the greatest common divisor and the Bézout coefficients.
 fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
     if b == 0 {
         (a, 1, 0)  // gcd, x, y
