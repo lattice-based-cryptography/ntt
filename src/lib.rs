@@ -158,9 +158,9 @@ fn factorize(n: i64) -> HashMap<i64, u32> {
 pub fn primitive_root(p: i64, e: u32) -> i64 {
     println!("primitive_root called");
     let g = primitive_root_mod_p(p);
-    println!("g: {}", g);
     let mut g_lifted = g; // Lift it to p^e
     for _ in 1..e {
+        println!("g_lifted: {}", g_lifted);
         if g_lifted.pow((p - 1) as u32) % p.pow(e) == 1 {
             g_lifted += p.pow(e - 1);
         }
