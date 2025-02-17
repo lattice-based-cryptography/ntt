@@ -21,7 +21,7 @@ fn mod_mul(a: i64, b: i64, p: i64) -> i64 {
 ///
 /// # Returns
 /// The result of the exponentiation modulo `p`.
-fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
+pub fn mod_exp(mut base: i64, mut exp: i64, p: i64) -> i64 {
     let mut result = 1;
     base %= p;
     while exp > 0 {
@@ -251,6 +251,15 @@ fn factorize(n: i64) -> HashMap<i64, u32> {
 ///
 /// # Returns
 /// A primitive root modulo `p^e`.
+/// 
+/// # Examples
+///
+/// ```
+/// // For p = 17 and e = 2, we compute a primitive root modulo 289.
+/// let p = 17;
+/// let e = 2;
+/// let g = ntt::primitive_root(p, e);
+/// assert_eq!(ntt::mod_exp(g, p*(p-1), p*p), 1);
 pub fn primitive_root(p: i64, e: u32) -> i64 {
     let g = primitive_root_mod_p(p);
     let mut g_lifted = g; // Lift it to p^e
