@@ -15,6 +15,7 @@ fn main() {
 
     // Perform the forward NTT
     let a_ntt = ntt(&a, omega, n, modulus);
+    println!("a_ntt = {:?}", a_ntt);
     let b_ntt = ntt(&b, omega, n, modulus);
 
     // Perform the inverse NTT on the transformed A for verification

@@ -106,6 +106,20 @@ pub fn omega(modulus: i64, n: usize) -> i64 {
 /// * `p` - Prime modulus for the operations.
 ///
 /// # Returns
+/// A vector representing the NTT of the input vector.
+///
+/// # Examples
+///
+/// ```
+/// let modulus: i64 = 17; // modulus, n must divide phi(p^k) for each prime factor p
+/// let n: usize = 8;  // Length of the NTT (must be a power of 2)
+/// let omega = ntt::omega(modulus, n); // n-th root of unity
+/// let mut a = vec![1, 2, 3, 4];
+/// a.resize(n, 0);
+/// // Perform the forward NTT
+/// let a_ntt = ntt::ntt(&a, omega, n, modulus);
+/// let a_ntt_expected = vec![10, 15, 6, 7, 16, 13, 11, 15];
+/// assert_eq!(a_ntt, a_ntt_expected);
 pub fn ntt(a: &[i64], omega: i64, n: usize, p: i64) -> Vec<i64> {
     let mut result = a.to_vec();
     let mut step = n/2;
@@ -320,4 +334,3 @@ pub fn verify_root_of_unity(omega: i64, n: i64, modulus: i64) -> bool {
     assert!(mod_exp(omega, n/2, modulus as i64) == modulus-1, "omgea^(n/2) != -1 (mod modulus)");
     true
 }
-
