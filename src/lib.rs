@@ -161,7 +161,7 @@ pub fn primitive_root(p: i64, e: u32) -> i64 {
     let mut g_lifted = g; // Lift it to p^e
     for _ in 1..e {
         println!("g_lifted: {}", g_lifted);
-        if g_lifted.pow((p - 1) as u32) % p.pow(e) == 1 {
+        if mod_exp(g_lifted, p-1, p.pow(e)) == 1 {
             g_lifted += p.pow(e - 1);
         }
     }
